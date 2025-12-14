@@ -23,7 +23,8 @@ export function PromptOutput({ content, isLoading }: PromptOutputProps) {
   };
 
   const handleDownload = (format: 'txt' | 'md') => {
-    const blob = new Blob([content], { type: 'text/plain' });
+    const mimeType = format === 'md' ? 'text/markdown' : 'text/plain';
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

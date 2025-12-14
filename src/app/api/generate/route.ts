@@ -3,6 +3,8 @@ import { MASTER_PROMPT } from '@/lib/masterPrompt';
 
 export const runtime = 'nodejs';
 
+const MAX_PROMPT_LENGTH = 10000;
+
 export async function POST(request: Request) {
   try {
     const { prompt } = await request.json();
@@ -10,6 +12,14 @@ export async function POST(request: Request) {
     if (!prompt || typeof prompt !== 'string') {
       return new Response(
         JSON.stringify({ error: 'Prompt is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate input length to prevent abuse
+    if (prompt.length > MAX_PROMPT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Prompt exceeds maximum length of ${MAX_PROMPT_LENGTH} characters` }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }

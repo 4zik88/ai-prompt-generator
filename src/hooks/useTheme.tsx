@@ -23,18 +23,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // This setState is intentional for hydration-safe theme initialization
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     // Check localStorage first, then system preference
-    const stored = localStorage.getItem('theme') as Theme | null;
-    if (stored) {
-      setThemeState(stored);
-      document.documentElement.setAttribute('data-theme', stored);
+    const stored = localStorage.getItem('theme');
+    // Type-safe validation: only accept valid theme values
+    const validTheme = stored === 'light' || stored === 'dark' ? stored : null;
+    if (validTheme) {
+       
+      setThemeState(validTheme);
+      document.documentElement.setAttribute('data-theme', validTheme);
     } else {
       const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches;
       const initialTheme = systemPreference ? 'dark' : 'light';
+       
       setThemeState(initialTheme);
       document.documentElement.setAttribute('data-theme', initialTheme);
     }
+    // Initialization from localStorage/system preference requires effect for SSR compatibility
   }, []);
 
   useEffect(() => {

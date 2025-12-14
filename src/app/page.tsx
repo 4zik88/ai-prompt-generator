@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PromptInput } from '@/components/PromptInput';
 import { PromptOutput } from '@/components/PromptOutput';
@@ -12,11 +12,21 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // AbortController ref for canceling in-flight requests
+  const abortControllerRef = useRef<AbortController | null>(null);
+  // Ref for accumulating streamed output to reduce re-renders
+  const outputRef = useRef('');
+
   const handleGenerate = useCallback(async () => {
     if (!input.trim() || isLoading) return;
 
+    // Cancel any in-flight request
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+
     setIsLoading(true);
     setOutput('');
+    outputRef.current = '';
     setError(null);
 
     try {
@@ -26,6 +36,7 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ prompt: input }),
+        signal: abortControllerRef.current.signal,
       });
 
       if (!response.ok) {
@@ -39,17 +50,20 @@ export default function Home() {
       }
 
       const decoder = new TextDecoder();
-      let result = '';
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        result += chunk;
-        setOutput(result);
+        outputRef.current += chunk;
+        setOutput(outputRef.current);
       }
     } catch (err) {
+      // Don't show error for aborted requests
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       setError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Generation error:', err);
     } finally {
@@ -73,7 +87,7 @@ export default function Home() {
               <span className="inline-block">&gt;_</span> Agent Prompt Creator
             </h1>
             <p className="text-foreground-secondary text-base md:text-lg font-mono">
-              <span className="text-accent">// </span>Transform your ideas into optimized prompts for AI agents
+              <span className="text-accent">{'//'} </span>Transform your ideas into optimized prompts for AI agents
             </p>
           </div>
           <ThemeToggle />
