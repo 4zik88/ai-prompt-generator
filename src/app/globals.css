@@ -1,26 +1,478 @@
 @import "tailwindcss";
 
+/* Hacker/Cyberpunk Design System */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Light mode - minimal support, app is designed for dark */
+  --background: #f0f0f0;
+  --background-secondary: #e0e0e0;
+  --background-tertiary: #d0d0d0;
+  --foreground: #000000;
+  --foreground-secondary: #404040;
+  --foreground-tertiary: #606060;
+  --border: #c0c0c0;
+  --border-hover: #a0a0a0;
+  --border-active: #808080;
+  --accent: #00ff41;
+  --accent-hover: #00cc33;
+  --accent-foreground: #000000;
+  --success: #00ff41;
+  --error: #ff0055;
+  --warning: #ffaa00;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Matrix-inspired Hacker Aesthetic */
+  /* Backgrounds - Deep black with subtle green tint */
+  --background: #0a0e0a;
+  --background-secondary: #0f140f;
+  --background-tertiary: #141a14;
+
+  /* Foregrounds - Phosphor green terminal colors */
+  --foreground: #00ff41; /* Bright Matrix green */
+  --foreground-secondary: #00cc33; /* Medium green */
+  --foreground-tertiary: #008f11; /* Darker green */
+
+  /* Borders - Glowing green borders */
+  --border: #003b00;
+  --border-hover: #00ff41;
+  --border-active: #00ff9f;
+
+  /* Accent - Cyberpunk neon cyan */
+  --accent: #00ffff;
+  --accent-hover: #00b8ff;
+  --accent-foreground: #000000;
+
+  /* Cyberpunk status colors */
+  --success: #00ff41; /* Matrix green */
+  --error: #ff0055; /* Hot pink/magenta */
+  --warning: #ffaa00; /* Amber alert */
+
+  /* Special cyberpunk accents */
+  --neon-cyan: #00ffff;
+  --neon-magenta: #ff00ff;
+  --neon-yellow: #ffff00;
+  --neon-pink: #ff0099;
+  --glow-color: rgba(0, 255, 65, 0.5);
 }
 
 @theme inline {
+  /* Colors */
   --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-background-tertiary: var(--background-tertiary);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-tertiary: var(--foreground-tertiary);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-border-active: var(--border-active);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Base styles - Hacker Terminal Aesthetic */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-mono); /* Monospace everywhere for terminal feel */
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Matrix-style radial glow background (dark mode only) */
+[data-theme="dark"] body {
+  background-color: #000000;
+  background-image: radial-gradient(
+    rgba(0, 150, 0, 0.15) 0%,
+    rgba(0, 50, 0, 0.05) 50%,
+    #000000 120%
+  );
+  text-shadow: 0 0 2px rgba(0, 255, 65, 0.3);
+}
+
+/* CRT Scanline overlay effect */
+[data-theme="dark"] body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  animation: scanline 8s linear infinite;
+}
+
+/* Scanline animation */
+@keyframes scanline {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(10px);
+  }
+}
+
+/* Flickering effect for authentic terminal feel */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.98; }
+}
+
+[data-theme="dark"] body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  pointer-events: none;
+  z-index: 9998;
+  animation: flicker 0.15s infinite;
+  opacity: 0.02;
+}
+
+/* Scrollbar styling - Cyberpunk style */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+  border-left: 1px solid var(--border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 0; /* Sharp edges for terminal aesthetic */
+  border: 1px solid var(--foreground-tertiary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Dark mode scrollbar glow */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #003b00 0%, #00ff41 100%);
+  border: 1px solid #00ff41;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #00ff41;
+  box-shadow: 0 0 10px #00ff41, 0 0 20px rgba(0, 255, 65, 0.5);
+}
+
+/* Selection - Cyberpunk glow */
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  text-shadow: none;
+}
+
+[data-theme="dark"] ::selection {
+  background: #00ffff;
+  color: #000000;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+}
+
+/* Focus visible for keyboard navigation - Glowing outline */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] :focus-visible {
+  outline: 2px solid #00ffff;
+  outline-offset: 3px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Prose styling for markdown output - Hacker aesthetic */
+.prose-output {
+  line-height: 1.8;
+  font-family: var(--font-mono);
+}
+
+.prose-output h1,
+.prose-output h2,
+.prose-output h3,
+.prose-output h4,
+.prose-output h5,
+.prose-output h6 {
+  color: var(--foreground);
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+[data-theme="dark"] .prose-output h1,
+[data-theme="dark"] .prose-output h2,
+[data-theme="dark"] .prose-output h3 {
+  color: #00ffff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.prose-output h1 { font-size: 1.875rem; }
+.prose-output h2 { font-size: 1.5rem; }
+.prose-output h3 { font-size: 1.25rem; }
+.prose-output h4 { font-size: 1.125rem; }
+
+.prose-output p {
+  margin-bottom: 1em;
+}
+
+.prose-output ul,
+.prose-output ol {
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.prose-output li {
+  margin-bottom: 0.25em;
+}
+
+.prose-output code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--background-tertiary);
+  padding: 0.125em 0.375em;
+  border-radius: 0; /* Sharp edges */
+  border: 1px solid var(--border);
+}
+
+[data-theme="dark"] .prose-output code {
+  background: rgba(0, 255, 65, 0.05);
+  border: 1px solid #003b00;
+  color: #00ff41;
+  box-shadow: inset 0 0 5px rgba(0, 255, 65, 0.1);
+}
+
+.prose-output pre {
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
+  border-radius: 0; /* Sharp edges for terminal look */
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1em;
+  position: relative;
+}
+
+[data-theme="dark"] .prose-output pre {
+  background: rgba(0, 20, 0, 0.5);
+  border: 1px solid #00ff41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.2), inset 0 0 20px rgba(0, 255, 65, 0.05);
+}
+
+.prose-output pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  border: none;
+  box-shadow: none;
+}
+
+.prose-output blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1em;
+  margin-left: 0;
+  margin-bottom: 1em;
+  color: var(--foreground-secondary);
+}
+
+[data-theme="dark"] .prose-output blockquote {
+  border-left: 3px solid #00ffff;
+  background: rgba(0, 255, 255, 0.05);
+  padding: 1em;
+  padding-left: 1.5em;
+  box-shadow: inset 3px 0 10px rgba(0, 255, 255, 0.2);
+}
+
+.prose-output strong {
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+[data-theme="dark"] .prose-output strong {
+  color: #00ffff;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.4);
+}
+
+.prose-output a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent);
+  transition: all 0.2s ease;
+}
+
+.prose-output a:hover {
+  color: var(--accent-hover);
+  text-shadow: 0 0 8px var(--accent);
+}
+
+[data-theme="dark"] .prose-output a {
+  color: #00ffff;
+  border-bottom: 1px solid #00ffff;
+}
+
+[data-theme="dark"] .prose-output a:hover {
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+  border-bottom: 1px solid transparent;
+}
+
+.prose-output hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2em 0;
+  position: relative;
+  height: 1px;
+}
+
+[data-theme="dark"] .prose-output hr {
+  border-top: 1px solid #00ff41;
+  box-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+}
+
+/* Cyberpunk utility classes */
+
+/* Glowing text effect */
+.text-glow {
+  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+}
+
+[data-theme="dark"] .text-glow-green {
+  color: #00ff41;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.8), 0 0 20px rgba(0, 255, 65, 0.4);
+}
+
+[data-theme="dark"] .text-glow-cyan {
+  color: #00ffff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.4);
+}
+
+/* Terminal-style borders with glow */
+.border-glow {
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .border-glow:hover {
+  border-color: #00ff41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.3), inset 0 0 10px rgba(0, 255, 65, 0.1);
+}
+
+/* Glitch animation for special effects */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+.glitch {
+  animation: glitch 0.3s infinite;
+}
+
+/* Typing cursor effect */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+/* Matrix-style data stream background (optional overlay) */
+@keyframes matrix-rain {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* Neon button glow pulse */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent);
+  }
+  50% {
+    box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent), 0 0 30px var(--accent);
+  }
+}
+
+[data-theme="dark"] button:not(:disabled):hover {
+  animation: neon-pulse 2s infinite;
+}
+
+/* Terminal-style kbd elements */
+kbd {
+  font-family: var(--font-mono);
+  border-radius: 0;
+}
+
+[data-theme="dark"] kbd {
+  background: rgba(0, 255, 65, 0.1);
+  border: 1px solid #00ff41;
+  color: #00ff41;
+  box-shadow: 0 0 5px rgba(0, 255, 65, 0.3);
 }
